@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.hit.violetsns.Mapper.SysUserMapper">
+    <insert id="register">
+        insert into
+            sys_user(username, password, nickname)
+        values
+            (#{username}, #{password}, #{nickname})
+    </insert>
+    <insert id="insertDefaultRole">
+        INSERT INTO sns.sys_user_role(id, user_id, role_id)
+        SELECT NULL, (SELECT user_id FROM sns.sys_user WHERE username = #{username}),
+               (SELECT role_id FROM sns.sys_role WHERE rolename = 'User')
+    </insert>
+
+    <select id="getUserById" parameterType="int" resultType="cn.edu.hit.violetsns.Entity.pojo.SysUser">
+        select user_id, username, nickname, password, status
+        from sys_user
+        where user_id = #{userId}
+    </select>
+
+    <select id="getUserByName" parameterType="string" resultType="cn.edu.hit.violetsns.Entity.pojo.SysUser">
+        select user_id, username, nickname, password, status
+        from sys_user
+        where username = #{username}
+    </select>
+
+    <select id="getRoleList" parameterType="int" resultType="String">
+        SELECT r.rolename AS name
+        FROM sys_role r
+                 INNER JOIN sys_user_role ur ON r.role_id = ur.role_id
+        WHERE ur.user_id = #{userId}
+    </select>
+    <select id="getMenuList" resultType="String">
+
+            SELECT p.permission_name
+            FROM sys_user u
+                     JOIN sys_user_role ur ON u.user_id = ur.user_id
+                     JOIN sys_role r ON ur.role_id = r.role_id
+                     JOIN sys_role_permissions rp ON r.role_id = rp.role_id
+                     JOIN sys_permissions p ON rp.permission_id = p.permission_id
+            WHERE u.user_id = #{userId}
+
+    </select>
+    <select id="hasUsername" resultType="java.lang.Boolean">
+        select count(1) > 0
+        from sys_user
+        where username = #{username}
+    </select>
+</mapper>
