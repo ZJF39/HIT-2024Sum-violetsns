@@ -61,9 +61,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     private static final String[] URL_WHITELIST = {
-            "/account/login",
-            "/account/captcha",
-            "/account/register"
+            "/api/auth/login",
+            "/api/auth/captcha",
+            "/api/auth/register",
+            "/doc.html",
+            "/swagger/**",
+            "/swagger-ui.html",
+            "/webjars/**",
+            "/v2/**",
+            "/swagger-resources/**",
+            "/favicon.ico"
     };
 
     @Bean

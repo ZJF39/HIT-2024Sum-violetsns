@@ -27,7 +27,7 @@ public class CaptchaFilter extends OncePerRequestFilter {
 
         String url = httpServletRequest.getRequestURI();
         // 判断是否是登录请求, 如果是则进行验证码校验, 否则直接放行
-        if ("/login".equals(url) && httpServletRequest.getMethod().equals("POST")) {
+        if ("/api/auth/login".equals(url) && httpServletRequest.getMethod().equals("POST")) {
             // 校验验证码
             try {
                 validate(httpServletRequest);
@@ -57,6 +57,6 @@ public class CaptchaFilter extends OncePerRequestFilter {
         // 验证码一次性使用
         // 若验证码正确，执行以下语句
         // 从Redis中删除验证码键值对
-   /*     RedisUtils.KeyOps.delete(key);*/
+        /*RedisUtils.KeyOps.delete(key);*/
     }
 }

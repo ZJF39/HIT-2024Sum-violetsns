@@ -1,7 +1,7 @@
 
 server:
   port: 8081
-
+  address: 192.168.0.108
 
 spring:
   application:
@@ -28,3 +28,4 @@ violet:
     header: token
     expire: 604800
     secret: violetEvergarden
+
