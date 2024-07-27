@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.hit.violetsns.Mapper.UserDetailsMapper">
+
+    <insert id="insertDefault" parameterType="java.lang.Integer">
+        INSERT INTO user_details
+            (user_id, mobile, gender, school, create_time, update_time)
+        VALUES
+            (#{userId}, null, 0, null, NOW(), NOW())
+
+    </insert>
+</mapper>

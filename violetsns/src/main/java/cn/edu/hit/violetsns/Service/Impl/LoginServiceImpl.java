@@ -4,7 +4,10 @@ package cn.edu.hit.violetsns.Service.Impl;
 import cn.edu.hit.violetsns.Entity.pojo.AccountUser;
 import cn.edu.hit.violetsns.Entity.pojo.SysUser;
 import cn.edu.hit.violetsns.Entity.vo.Result;
+import cn.edu.hit.violetsns.Exception.LoginException;
+import cn.edu.hit.violetsns.Handler.LoginSuccessHandler;
 import cn.edu.hit.violetsns.Mapper.SysUserMapper;
+import cn.edu.hit.violetsns.Mapper.UserDetailsMapper;
 import cn.edu.hit.violetsns.Service.LoginService;
 import cn.edu.hit.violetsns.Utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -19,13 +23,16 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class LoginServiceImpl implements LoginService {
 
 
     @Resource
     private AuthenticationManager authenticationManager;
     @Autowired
-    private SysUserMapper mapper;
+    private SysUserMapper sysUserMapper;
+    @Autowired
+    private UserDetailsMapper userDetailsMapper;
     @Autowired
     private JwtUtils jwtUtils;
     @Autowired
@@ -62,7 +69,7 @@ public class LoginServiceImpl implements LoginService {
         sysUser1.setStatus(user.getUser().getStatus());
         map.put("userInfo",sysUser1);
 
-        map.put("menuList",mapper.getMenuList(userId));
+        map.put("menuList",sysUserMapper.getMenuList(userId));
 
 
         return Result.succ(200,"登陆成功",map);
@@ -73,7 +80,8 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public Result register(SysUser user) {
-        if(mapper.hasUsername(user.getUsername())){
+        if(sysUserMapper.hasUsername(user.getUsername())){
+
             return Result.fail("用户名已存在");
         }
         //设置默认用户名
@@ -81,8 +89,11 @@ public class LoginServiceImpl implements LoginService {
             user.setNickname(shortID.generateShortUuid());
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        mapper.register(user);
-        mapper.insertDefaultRole(user.getUsername());
+        sysUserMapper.register(user);
+        user.setUserId(sysUserMapper.selectUserID(user.getUsername()));
+        sysUserMapper.insertDefaultRole(user.getUserId());
+        userDetailsMapper.insertDefault(user.getUserId());
+
         return Result.succ("注册成功");
     }
 }

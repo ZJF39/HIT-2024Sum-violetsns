@@ -14,4 +14,9 @@ public class SysUser {
     private String nickname;
     private String avatar;
     private String status;
+
+    public SysUser(String nickname, String avatar) {
+        this.nickname = nickname;
+        this.avatar = avatar;
+    }
 }

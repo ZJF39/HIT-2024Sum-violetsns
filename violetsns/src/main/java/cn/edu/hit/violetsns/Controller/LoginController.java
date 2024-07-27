@@ -53,8 +53,8 @@ public class LoginController {
     @ApiOperation("注册接口")
     @PostMapping("/register")
     public Result register(@RequestBody SysUser user){
-        loginservice.register(user);
-        return Result.succ("注册成功!");
+
+        return loginservice.register(user);
     }
 
 

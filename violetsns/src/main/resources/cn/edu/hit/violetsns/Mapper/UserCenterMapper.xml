@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.UserCenterMapper">
+    <update id="updateSysUser">
+        UPDATE sys_user
+        <set>
+            <trim prefix=" " prefixOverrides=",">
+                <if test="sysUser.nickname != null">
+                    nickname = #{sysUser.nickname},
+                </if>
+                <if test="sysUser.avatar!=null">
+                    avatar = #{sysUser.avatar},
+                </if>
+            </trim>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+    <update id="updateUserDetails">
+        UPDATE user_details
+        <set>
+            <trim prefix=" " prefixOverrides=",">
+                <if test="userDetails.mobile != null">
+                    mobile = #{userDetails.mobile},
+                </if>
+                <if test="userDetails.gender != null">
+                    gender = #{userDetails.gender},
+                </if>
+                <if test="userDetails.school != null">
+                    school = #{userDetails.school},
+                </if>
+                <if test="userDetails.updateTime != null">
+                    update_time = #{userDetails.updateTime},
+                </if>
+            </trim>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="getUserInfo" resultType="cn.edu.hit.violetsns.Entity.vo.UserProfile"
+            parameterType="java.lang.Integer">
+        SELECT nickname,avatar,mobile,gender,school,update_time
+        FROM sys_user su left join  user_details ud ON su.user_id = ud.user_id
+        WHERE su.user_id = #{userId}
+    </select>
+</mapper>

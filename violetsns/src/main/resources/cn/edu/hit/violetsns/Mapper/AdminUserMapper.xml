@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.hit.violetsns.Mapper.AdminUserMapper">
+    <update id="updateUserStatus">
+        update sys_user
+        set status = #{status}
+        where user_id = #{userId}
+    </update>
+
+    <select id="getUsersInfo" resultType="cn.edu.hit.violetsns.Entity.pojo.SysUser">
+        select user_id, username, nickname, avatar, status
+        from sys_user
+        <where>
+            <if test="username != null">
+                username like concat('%',
+                #{username},
+                '%'
+                )
+            </if>
+            <if test="nickname != null">
+                nickname like concat('%',
+                #{nickname},
+                '%'
+                )
+            </if>
+        </where>
+    </select>
+    <select id="getUserById" resultType="cn.edu.hit.violetsns.Entity.pojo.SysUser"
+            parameterType="java.lang.Integer">
+        select user_id, username, nickname, avatar, status
+        from sys_user
+        where user_id = #{userId}
+    </select>
+    <select id="getUserDetails" resultType="cn.edu.hit.violetsns.Entity.pojo.UserDetails"
+            parameterType="java.lang.Integer">
+        select gender, mobile, school, create_time, update_time
+        from user_details
+        where user_id = #{userId}
+    </select>
+    <select id="count" resultType="cn.edu.hit.violetsns.Entity.vo.CountTMF">
+        select count(*) as count,
+        sum(case when gender = 0 then 1 else 0 end) as male,
+        sum(case when gender = 1 then 1 else 0 end) as female,
+        sum(case when gender = 2 then 1 else 0 end) as unknown
+        from user_details;
+    </select>
+    <select id="count30days" resultType="cn.edu.hit.violetsns.Entity.vo.DailyUserCount">
+            SELECT DATE(create_time) AS date, COUNT(*) AS count
+            FROM sns.user_details
+            WHERE create_time >= CURDATE() - INTERVAL 30 DAY
+            GROUP BY DATE(create_time)
+            ORDER BY date
+    </select>
+</mapper>
