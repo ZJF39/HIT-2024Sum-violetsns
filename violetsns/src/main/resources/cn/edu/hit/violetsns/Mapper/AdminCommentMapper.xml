@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.AdminCommentMapper">
+    <update id="updateCommentStatus">
+        UPDATE sns.post_comments
+        SET status = #{status}
+        WHERE p_comment_id = #{commentId}
+    </update>
+
+
+    <select id="getAdminAllComments" resultType="cn.edu.hit.violetsns.Entity.vo.AdminCommentDetail">
+        SELECT c.p_comment_id,c.pid,c.post_id,c.uid,u.nickname,c.content,
+        CASE
+        WHEN c.status = 0 THEN '正常'
+        WHEN c.status = 1 THEN '审核'
+        WHEN c.status = 2 THEN '删除'
+        END AS status,
+            c.create_time
+        FROM sns.post_comments c
+        LEFT JOIN sns.sys_user u ON c.uid = u.user_id
+        <where>
+            <if test="postId != null">
+                AND c.post_id = #{postId}
+            </if>
+            <if test="uid != null">
+                AND c.uid = #{uid}
+            </if>
+            <if test="nickname != null">
+                AND c.nickname LIKE CONCAT('%', #{nickname}, '%')
+            </if>
+            <if test="content != null">
+                AND c.content LIKE CONCAT('%', #{content}, '%')
+            </if>
+            <if test="status != null">
+                AND c.status = #{status}
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy != null and order != null">
+                ${sortBy} ${order}
+            </when>
+            <otherwise>
+                c.p_comment_id DESC
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

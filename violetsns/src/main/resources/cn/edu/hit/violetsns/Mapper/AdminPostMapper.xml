@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.AdminPostMapper">
+    <update id="updatePostStatus">
+        UPDATE sns.post
+        SET status = #{status}
+        WHERE post_id = #{postId}
+    </update>
+
+
+    <select id="getAdminAllPosts" resultType="cn.edu.hit.violetsns.Entity.vo.AdminPostDetail">
+        SELECT p.post_id, p.uid, c.cate_name AS category_name, p.title, SUBSTRING(p.content, 1, 30) AS content, p.read_count,
+        CASE
+        WHEN p.post_top = 0 THEN '否'
+        WHEN p.post_top = 1 THEN '是'
+        END AS post_top, p.create_time,
+        CASE
+        WHEN p.status = 0 THEN '正常'
+        WHEN p.status = 1 THEN '审核'
+        WHEN p.status = 2 THEN '删除'
+        END AS status, u.nickname
+        FROM sns.post p
+        LEFT JOIN sns.category c ON p.cate_id = c.cate_id
+        LEFT JOIN sns.sys_user u ON p.uid = u.user_id
+        <where>
+            <if test="postId != null">
+                AND p.post_id = #{postId}
+            </if>
+            <if test="username != null">
+                AND u.username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="nickname != null">
+                AND u.nickname LIKE CONCAT('%', #{nickname}, '%')
+            </if>
+            <if test="title != null">
+                AND p.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="content != null">
+                AND p.content LIKE CONCAT('%', #{content}, '%')
+            </if>
+            <if test="status != null">
+                AND p.status = #{status}
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy != null and order != null">
+                ${sortBy} ${order}
+            </when>
+            <otherwise>
+                p.post_id DESC
+            </otherwise>
+        </choose>
+    </select>
+</mapper>
