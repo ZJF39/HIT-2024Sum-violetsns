@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.JobMapper">
+    <insert id="uploadJob" parameterType="cn.edu.hit.violetsns.Entity.pojo.Job">
+        insert
+        into job(title, content, create_time, uid)
+        values (#{title}, #{content}, now(), #{uid})
+    </insert>
+    <insert id="uploadResume">
+        insert
+        into job_cv(job_id, uid, resume, create_time)
+        values (#{jobId}, #{userId}, #{url}, now())
+    </insert>
+
+
+    <update id="jobThumbPlus" parameterType="java.lang.Integer">
+        update job
+        set thumb_count = thumb_count + 1
+        where job_id = #{jobId}
+    </update>
+    <update id="jobBrowsePlus" parameterType="java.lang.Integer">
+        update job
+        set read_count = read_count + 1
+        where job_id = #{jobId}
+    </update>
+
+
+    <select id="getAllJobs" resultType="cn.edu.hit.violetsns.Entity.vo.PostElement">
+        select j.job_id AS id,
+               j.title,
+               u.nickname,
+               j.read_count AS nBrowse,
+               j.thumb_count AS nUpvote,
+               u.avatar AS coverPicture,
+               SUBSTRING(j.content, 1, 30) AS description,
+               j.create_time AS time
+        from job j
+        left join sys_user u on j.uid = u.user_id
+
+        <where>
+            j.status = '0'
+            <if test="keyword != null">
+                AND
+                j.title LIKE CONCAT('%', #{keyword}, '%')
+                OR
+                j.content LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="uid != null">
+                AND j.uid = #{uid}
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy != null and order != null">
+                ${sortBy} ${order}
+            </when>
+            <otherwise>
+                j.create_time DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="getJobInfo" resultType="cn.edu.hit.violetsns.Entity.vo.JobDetail"
+            parameterType="java.lang.Integer">
+        select j.job_id AS jobId,
+               j.title,
+               j.content,
+               j.create_time,
+               j.read_count AS nBrowse,
+               j.thumb_count AS nUpvote,
+               u.nickname,
+               u.avatar AS avatar
+        from job j
+        left join sys_user u on j.uid = u.user_id
+        where j.job_id = #{jobId}
+    </select>
+    <select id="getAllResume" resultType="cn.edu.hit.violetsns.Entity.pojo.JobCV"
+            parameterType="java.lang.Integer">
+        select
+            jcv.id AS id,
+            u.nickname AS nickname,
+            jcv.resume AS resume,
+            jcv.create_time AS createTime
+        from job_cv jcv
+        left join sys_user u on jcv.uid = u.user_id
+        left join job j on jcv.job_id = j.job_id
+        where jcv.job_id = #{jobId}
+    </select>
+    <select id="getJobTitle" resultType="java.lang.String" parameterType="java.lang.Integer">
+        select title
+        from job
+        where job_id = #{jobId}
+    </select>
+    <select id="downloadResume" resultType="java.lang.String" parameterType="java.lang.Integer">
+        select resume
+        from job_cv
+        where id = #{id}
+    </select>
+</mapper>

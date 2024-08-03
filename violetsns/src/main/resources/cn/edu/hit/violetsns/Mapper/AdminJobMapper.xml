@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.AdminJobMapper">
+    <update id="updateJobStatus">
+        UPDATE sns.job
+        SET status = #{status}
+        WHERE job_id = #{jobId}
+    </update>
+    <select id="getAdminJobs" resultType="cn.edu.hit.violetsns.Entity.vo.AdminJobDetail">
+        select j.job_id,u.nickname,j.title,SUBSTRING(j.content, 1, 30) AS content,
+               CASE
+            WHEN j.status = 0 THEN '正常'
+            WHEN j.status = 1 THEN '审核'
+            WHEN j.status = 2 THEN '删除'
+            END AS status,
+            j.create_time
+        from sns.job j
+        left join sns.sys_user u on j.uid = u.user_id
+        <where>
+            <if test="status != null">
+                and j.status = #{status}
+            </if>
+            <if test="title != null">
+                and j.title like concat('%',#{title},'%')
+            </if>
+            <if test="nickname != null">
+                and u.nickname like concat('%',#{nickname},'%')
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy != null and order != null">
+                ${sortBy} ${order}
+            </when>
+            <otherwise>
+                j.job_id DESC
+            </otherwise>
+        </choose>
+
+    </select>
+</mapper>

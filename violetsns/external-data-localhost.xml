@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <object-set>
+    <table path="sns.activity">
+      <table path="sns.activity_join" from="activity_id" to="activity_id"/>
+    </table>
+    <table path="sns.job_cv">
+      <table path="sns.job" from="job_id" to="job_id"/>
+    </table>
+    <table path="sns.post">
+      <table path="sns.category" from="cate_id" to="cate_id"/>
+      <table path="sns.post_comments" from="post_id" to="post_id"/>
+    </table>
+    <table path="sns.sys_role">
+      <table path="sns.sys_role_permissions" from="role_id" to="role_id"/>
+    </table>
+    <table path="sns.sys_role_permissions">
+      <table path="sns.sys_permissions" from="permission_id" to="permission_id"/>
+    </table>
+    <table path="sns.sys_user">
+      <table path="sns.activity" from="user_id" to="uid"/>
+      <table path="sns.job" from="user_id" to="job_id"/>
+      <table path="sns.notes" from="user_id" to="user_id"/>
+      <table path="sns.post" from="user_id" to="uid"/>
+      <table path="sns.resources" from="user_id" to="uid"/>
+      <table path="sns.sys_user_role" from="user_id" to="user_id"/>
+      <table path="sns.user_details" from="user_id" to="user_id"/>
+    </table>
+    <table path="sns.sys_user_role">
+      <table path="sns.sys_role" from="role_id" to="role_id"/>
+    </table>
+  </object-set>
+</data>

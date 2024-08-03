@@ -4,6 +4,7 @@ package cn.edu.hit.violetsns.Service.Impl;
 import cn.edu.hit.violetsns.Entity.pojo.AccountUser;
 import cn.edu.hit.violetsns.Entity.pojo.SysUser;
 import cn.edu.hit.violetsns.Service.SysUserService;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@Api(tags = "用户登录模块")
+// 勿动
 public class UserDetailServiceImpl implements UserDetailsService {
 
     @Autowired

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.AdminNotesMapper">
+    <insert id="uploadNotes">
+        insert into sns.notes(user_id,title, content, create_time)
+        values (#{userId},#{title}, #{content}, now())
+    </insert>
+
+
+    <select id="getRows" resultType="cn.edu.hit.violetsns.Entity.vo.AdminNotesDetail">
+        select n.id,u.nickname,n.title,n.content,n.create_time
+        from sns.notes n
+        left join sns.sys_user u on u.user_id = n.user_id
+        <where>
+            <if test = "title != null">
+                n.title like concat('%',#{title},'%')
+            </if>
+            <if test = "content != null">
+                n.content like concat('%',#{content},'%')
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy != null and order != null">
+                ${sortBy} ${order}
+            </when>
+            <otherwise>
+                n.create_time DESC
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

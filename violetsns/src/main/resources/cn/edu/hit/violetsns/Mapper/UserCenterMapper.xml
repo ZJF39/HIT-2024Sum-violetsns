@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="cn.edu.hit.violetsns.Mapper.UserCenterMapper">
+
     <update id="updateSysUser">
         UPDATE sys_user
         <set>
-            <trim prefix=" " prefixOverrides=",">
-                <if test="sysUser.nickname != null">
-                    nickname = #{sysUser.nickname},
+            <trim prefix="" prefixOverrides=",">
+                <if test="userProfile.nickname != null">
+                    nickname = #{userProfile.nickname},
                 </if>
-                <if test="sysUser.avatar!=null">
-                    avatar = #{sysUser.avatar},
+                <if test="userProfile.avatar!=null">
+                    avatar = #{userProfile.avatar},
                 </if>
+                update_time = now()
             </trim>
         </set>
         WHERE user_id = #{userId}
@@ -19,18 +21,25 @@
         UPDATE user_details
         <set>
             <trim prefix=" " prefixOverrides=",">
-                <if test="userDetails.mobile != null">
-                    mobile = #{userDetails.mobile},
+                <if test="userProfile.mobile != null">
+                    mobile = #{userProfile.mobile},
                 </if>
-                <if test="userDetails.gender != null">
-                    gender = #{userDetails.gender},
+                <if test="userProfile.gender != null">
+                    gender = #{userProfile.gender},
                 </if>
-                <if test="userDetails.school != null">
-                    school = #{userDetails.school},
+                <if test="userProfile.school != null">
+                    school = #{userProfile.school},
                 </if>
-                <if test="userDetails.updateTime != null">
-                    update_time = #{userDetails.updateTime},
+                <if test="userProfile.email != null">
+                    email = #{userProfile.email},
                 </if>
+                <if test="userProfile.major != null">
+                    major = #{userProfile.major},
+                </if>
+                <if test="userProfile.address != null">
+                    address = #{userProfile.address},
+                </if>
+                update_time = now()
             </trim>
         </set>
         WHERE user_id = #{userId}
@@ -38,8 +47,115 @@
 
     <select id="getUserInfo" resultType="cn.edu.hit.violetsns.Entity.vo.UserProfile"
             parameterType="java.lang.Integer">
-        SELECT nickname,avatar,mobile,gender,school,update_time
-        FROM sys_user su left join  user_details ud ON su.user_id = ud.user_id
+        SELECT su.nickname,su.avatar,ud.gender,ud.mobile,ud.email,ud.school,ud.major,ud.address,ud.update_time,ud.create_time
+        FROM sys_user su
+        left join  user_details ud ON su.user_id = ud.user_id
         WHERE su.user_id = #{userId}
     </select>
+    <!-- 获取用户所有点赞数 -->
+    <select id="getTotalThumbsByUserId" resultType="java.lang.Integer"
+            parameterType="java.lang.Integer">
+        SELECT COUNT(*) AS total_thumbs
+        FROM (
+            SELECT *
+            FROM sns.post_thumbs
+            WHERE uid = #{userId}
+            UNION ALL
+            SELECT *
+            FROM sns.comment_thumbs
+            WHERE uid = #{userId}
+        ) AS combined_thumbs
+    </select>
+
+        <!-- 获取用户发帖总数 -->
+    <select id="getTotalPostsByUserId" resultType="java.lang.Integer"
+            parameterType="java.lang.Integer">
+        SELECT COUNT(*) AS total_posts
+        FROM sns.post
+        WHERE uid = #{userId}
+    </select>
+
+    <!-- 获取用户发表评论总数 -->
+    <select id="getTotalCommentsByUserId" resultType="java.lang.Integer"
+            parameterType="java.lang.Integer">
+        SELECT COUNT(*) AS total_comments
+        FROM (
+            SELECT *
+            FROM sns.post_comments
+            WHERE uid = #{userId}
+            UNION ALL
+            SELECT *
+            FROM sns.activity_comments
+            WHERE uid = #{userId}
+        ) AS combined_comments
+    </select>
+    <select id="getMyPosts" resultType="cn.edu.hit.violetsns.Entity.vo.PostElement"
+            parameterType="java.lang.Integer">
+        SELECT p.post_id AS id,p.title,SUBSTRING(p.content, 1, 30) AS description,su.avatar AS coverPicture,p.read_count AS nBrowse,p.create_time AS time,su.nickname,
+        COALESCE(x.nUpvote, 0) AS nUpvote
+        from post p
+            left join sys_user u on p.uid = u.user_id
+            left join (
+                select post_id, COUNT(*) AS nUpvote
+                from post_thumbs
+                group by post_id
+                ) x on x.post_id = p.post_id
+        left join sns.sys_user su on su.user_id = p.uid
+        WHERE p.uid = #{userId}
+        ORDER BY p.create_time DESC
+    </select>
+    <select id="getMyJobs" resultType="cn.edu.hit.violetsns.Entity.vo.PostElement"
+            parameterType="java.lang.Integer">
+        select
+        j.job_id AS id,
+        j.title,
+        u.nickname,
+        j.read_count AS nBrowse,
+        j.thumb_count AS nUpvote,
+        u.avatar AS coverPicture,
+        SUBSTRING(j.content, 1, 30) AS description,
+        j.create_time AS time
+        from job j
+        left join sys_user u on j.uid = u.user_id
+        WHERE
+            j.uid = #{userId}
+
+        ORDER BY j.create_time DESC
+
+    </select>
+    <select id="getMyResumes" resultType="cn.edu.hit.violetsns.Entity.pojo.JobCV"
+            parameterType="java.lang.Integer">
+        select
+            cv.id,
+            j.title,
+            cv.create_time
+        from job_cv cv
+        left join job j on cv.job_id = j.job_id
+        left join sys_user u on cv.uid = u.user_id
+        where cv.uid = #{userId}
+        ORDER BY
+                cv.create_time DESC
+    </select>
+
+    <select id="getMyResources" resultType="cn.edu.hit.violetsns.Entity.vo.PostElement"
+            parameterType="java.lang.Integer">
+        SELECT
+        r.id AS id,
+        r.title AS title,
+        SUBSTRING(r.content, 1, 30) AS description,
+        u.avatar AS coverPicture,
+        r.create_time AS time,
+        r.read_count AS nBrowse,
+        r.thumb_count AS nUpvote,
+        u.nickname
+        FROM
+        resources r
+        LEFT JOIN sys_user u ON r.uid = u.user_id
+        WHERE
+            r.status = '0'
+            AND
+            r.uid = #{userId}
+    </select>
+
+
 </mapper>

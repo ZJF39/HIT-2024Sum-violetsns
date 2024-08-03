@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 @Api(tags = "登录模块")
 public class LoginController {
 
-
     @Autowired
     private Producer producer;
     @Autowired
@@ -92,7 +91,7 @@ public class LoginController {
         key ="captcha:"+ key;
 
         RedisUtils.StringOps.set(key, code);
-            RedisUtils.KeyOps.expire(key, 3600, TimeUnit.SECONDS);
+            RedisUtils.KeyOps.expire(key, 120, TimeUnit.SECONDS);
 
         return Result.succ(
                 MapUtil.builder()

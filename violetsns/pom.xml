@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>cn.edu.hit</groupId>
 	<artifactId>violetsns</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+
 	<name>violetsns</name>
 	<description>violetsns</description>
 	<url/>
@@ -81,6 +81,22 @@
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper-spring-boot-starter</artifactId>
 			<version>2.1.0</version>
+		</dependency>
+
+		<!-- 阿里云对象存储服务依赖 -->
+		<!-- 该依赖提供了与阿里云OSS集成的starter，简化了在Spring Boot应用中使用阿里云OSS的配置和使用 -->
+		<dependency>
+			<groupId>com.aliyun.oss</groupId>
+			<artifactId>aliyun-oss-spring-boot-starter</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+
+		<!-- Spring Boot配置处理器依赖 -->
+		<!-- 该依赖用于自动处理和生成配置类的注解处理器，帮助开发者自动生成配置属性的Java类 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
 		</dependency>
 
 

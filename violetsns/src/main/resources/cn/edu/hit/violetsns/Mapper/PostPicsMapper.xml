@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.hit.violetsns.Mapper.PostPicsMapper">
+    <resultMap id="pics" type="cn.edu.hit.violetsns.Entity.pojo.PostPics">
+        <id column="pics_id" property="picsId"/>
+        <result column="post_id" property="postId"/>
+        <result column="media" property="media"/>
+    </resultMap>
+
+    <insert id="insert" keyProperty="picsId" useGeneratedKeys="true">
+        insert into post_pics(post_id, media) values (postId, media)
+    </insert>
+
+    <delete id="deleteById" parameterType="integer">
+        delete from post_pics where pics_id = #{picsId}
+    </delete>
+
+    <delete id="deleteByPostId" parameterType="integer">
+        delete from post_pics where post_id = #{postId}
+    </delete>
+</mapper>

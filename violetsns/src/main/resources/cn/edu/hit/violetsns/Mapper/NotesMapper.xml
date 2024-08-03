@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.NotesMapper">
+
+    <select id="getNotes" resultType="cn.edu.hit.violetsns.Entity.pojo.Notes">
+        select id, title, create_time
+            from notes
+        order by create_time desc
+    </select>
+    <select id="getNoteInfo" resultType="cn.edu.hit.violetsns.Entity.pojo.Notes"
+            parameterType="java.lang.Integer">
+        select title, content, create_time,u.nickname
+            from notes n
+            left join sys_user u on u.user_id = n.user_id
+        where id = #{id}
+    </select>
+</mapper>

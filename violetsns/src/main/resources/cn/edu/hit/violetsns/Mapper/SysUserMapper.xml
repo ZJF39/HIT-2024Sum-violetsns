@@ -8,7 +8,7 @@
             sys_user
             (username, password, nickname,avatar)
         values
-            (#{username}, #{password}, #{nickname},'C:\\Users\\73937\\Pictures\\动漫\\konata.jpg')
+            (#{username}, #{password}, #{nickname},'https://web-hqedu.oss-cn-beijing.aliyuncs.com/Default-Avatar.png')
     </insert>
     <insert id="insertDefaultRole">
         INSERT INTO sns.sys_user_role(id, user_id, role_id)

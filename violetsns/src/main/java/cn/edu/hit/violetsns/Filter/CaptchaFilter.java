@@ -37,6 +37,16 @@ public class CaptchaFilter extends OncePerRequestFilter {
                 loginFailureHandler.onAuthenticationFailure(httpServletRequest, httpServletResponse, e);
             }
         }
+        if ("/api/auth/register".equals(url) && httpServletRequest.getMethod().equals("POST")) {
+            // 校验验证码
+            try {
+                validate(httpServletRequest);
+            } catch (CaptchaException e) {
+
+                // 交给认证失败处理器
+                loginFailureHandler.onAuthenticationFailure(httpServletRequest, httpServletResponse, e);
+            }
+        }
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
@@ -57,6 +67,6 @@ public class CaptchaFilter extends OncePerRequestFilter {
         // 验证码一次性使用
         // 若验证码正确，执行以下语句
         // 从Redis中删除验证码键值对
-        /*RedisUtils.KeyOps.delete(key);*/
+        RedisUtils.KeyOps.delete(key);
     }
 }

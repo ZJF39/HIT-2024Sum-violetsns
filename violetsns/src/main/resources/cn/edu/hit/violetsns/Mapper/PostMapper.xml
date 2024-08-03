@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.hit.violetsns.Mapper.PostMapper">
+    <resultMap id="PostMap" type="cn.edu.hit.violetsns.Entity.pojo.Post">
+        <result column="post_id" property="postId"/>
+        <result column="uid" property="uid"/>
+        <result column="cate_id" property="cateId"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="read_count" property="readCount"/>
+        <result column="post_top" property="postTop"/>
+        <result column="create_time" property="createTime"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="postId" >
+        insert into
+            post(uid,
+                 title,
+                 content,
+                 create_time,
+                 cover_picture)
+        values
+            (#{uid},
+             #{title},
+             #{content},
+             now(),
+             #{coverPicture})
+    </insert>
+    <insert id="insertComment" parameterType="cn.edu.hit.violetsns.Entity.vo.PostComment">
+        insert into
+            post_comments
+        (pid,
+         post_id,
+         uid,
+         to_uid,
+         content,
+         create_time
+         )
+        values
+            (#{pid},
+             #{postId},
+             #{uid},
+             #{toUid},
+             #{content},
+             now())
+    </insert>
+    <update id="postViewPlus" parameterType="java.lang.Integer">
+        update post
+        set read_count = read_count + 1
+        where post_id = #{postId}
+    </update>
+    <update id="thumbUp" parameterType="java.lang.Integer">
+        update post
+        set thumb_count = thumb_count + 1
+        where post_id = #{postId}
+    </update>
+
+
+    <delete id="delete">
+        delete from post where post_id = #{postId}
+    </delete>
+
+    <select id="getPosts" resultType="cn.edu.hit.violetsns.Entity.vo.PostElement">
+        select p.post_id AS id,p.title AS title,p.read_count AS nBrowse,p.thumb_count AS nUpvote,u.nickname AS nickname,p.cover_picture AS coverPicture,SUBSTRING(p.content, 1, 30) AS description,p.create_time AS time,x.nComment
+        from post p
+            left join sys_user u on p.uid = u.user_id
+            left join (
+            select post_id, COUNT(*) AS nComment
+            from post_comments
+            group by post_id
+            ) x on x.post_id = p.post_id
+        <where>
+            <if test="keyword!=null">
+                p.title LIKE CONCAT('%', #{keyword}, '%')
+                or
+                p.content LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="uid!=null">
+                p.uid = #{uid}
+            </if>
+        </where>
+    </select>
+
+    <select id="findByPostId" parameterType="int" resultType="cn.edu.hit.violetsns.Entity.vo.PostDetail">
+        select u.user_id,
+               p.post_id,
+               p.title,
+               p.content,
+               p.thumb_count AS nUpvote,
+               p.create_time,
+               u.nickname,
+               u.avatar
+        from post p
+        left join sys_user u on p.uid = u.user_id
+        where p.post_id = #{postId}
+    </select>
+
+</mapper>

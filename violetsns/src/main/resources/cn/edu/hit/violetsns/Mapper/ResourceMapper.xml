@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.ResourceMapper">
+
+    <update id="ResourceBrowsePlus" parameterType="java.lang.Integer">
+        update resources
+        set read_count = read_count + 1
+        where id = #{id}
+    </update>
+    <update id="ResourceUpvotePlus" parameterType="java.lang.Integer">
+        update resources
+        set thumb_count = thumb_count + 1
+        where id = #{id}
+    </update>
+
+    <update id="postResource" parameterType="cn.edu.hit.violetsns.Entity.pojo.Resources">
+        INSERT INTO resources(uid, title, content, resource, create_time)
+        VALUES (#{uid}, #{title}, #{content}, #{resource}, now())
+    </update>
+
+
+    <select id="getAllResources" resultType="cn.edu.hit.violetsns.Entity.vo.PostElement"
+            parameterType="java.lang.String">
+        SELECT
+        r.id AS id,
+        r.title AS title,
+        SUBSTRING(r.content, 1, 30) AS description,
+        u.avatar AS coverPicture,
+        r.create_time AS time,
+        r.read_count AS nBrowse,
+        r.thumb_count AS nUpvote,
+        u.nickname
+        FROM
+        resources r
+        LEFT JOIN sys_user u ON r.uid = u.user_id
+        <where>
+            <if test="keyword!=null">
+                r.title LIKE CONCAT('%', #{keyword}, '%')
+                or
+                r.content LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+    </select>
+    <select id="getResourceInfo" resultType="cn.edu.hit.violetsns.Entity.pojo.Resources"
+            parameterType="java.lang.Integer">
+        SELECT
+        r.id AS id,
+        r.title AS title,
+        r.content AS content,
+        r.create_time AS createTime,
+        r.read_count AS nBrowse,
+        r.thumb_count AS nUpvote,
+        u.nickname AS nickname,
+        u.avatar AS coverPicture
+        FROM
+        resources r
+        LEFT JOIN sys_user u ON r.uid = u.user_id
+        WHERE
+            r.status = '0'
+            AND
+            r.id = #{id}
+    </select>
+    <select id="downloadResource" resultType="java.lang.String" parameterType="java.lang.Integer">
+        SELECT
+            resource
+        FROM
+            resources
+        WHERE
+            id = #{id}
+    </select>
+
+
+    <select id="getResource" resultType="cn.edu.hit.violetsns.Entity.vo.ResourceDetail">
+        select r.id, r.uid, r.title, r.resource, r.read_count, r.thumb_count, r.create_time, r.status, u.nickname as user_nickname
+        from sns.resources r
+        left join sns.sys_user u on r.uid = u.user_id
+        <where>
+            <if test="username != null">
+                and u.username = #{username}
+            </if>
+            <if test="title != null">
+                and r.title like concat('%', #{title},'%')
+            </if>
+            <if test="content!=null">
+                and r.content like concat('%', #{content},'%')
+            </if>
+            <if test="status != null">
+                and r.status = #{status}
+            </if>
+        </where>
+        order by
+        <choose>
+            <when test="sort_by != null and order != null">
+                ${sort_by} ${order}
+            </when>
+            <otherwise>
+                r.id DESC
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <update id="delete">
+        update resources
+        set status = 2
+        where id = #{id}
+    </update>
+
+
+</mapper>

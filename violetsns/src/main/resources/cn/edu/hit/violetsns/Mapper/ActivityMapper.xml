@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.ActivityMapper">
+    <insert id="insertActivity" parameterType="cn.edu.hit.violetsns.Entity.pojo.Activity">
+        insert into activity(uid, content, cover_picture, create_time, title)
+        values (#{uid}, #{content}, #{coverPicture}, now(), #{title})
+    </insert>
+    <insert id="joinActivity" parameterType="cn.edu.hit.violetsns.Entity.pojo.ActivityJoin">
+        insert into activity_join(activity_id, uid, create_time)
+        values (#{activityId}, #{uid}, now())
+    </insert>
+
+    <update id="activityViewPlus" parameterType="java.lang.Integer">
+        update activity
+        set read_count = read_count + 1
+        where activity_id = #{id}
+    </update>
+
+    <select id="getActivities" resultType="cn.edu.hit.violetsns.Entity.vo.PostElement">
+        select a.activity_id AS id,
+               SUBSTRING(a.content, 1, 30) AS description,
+               a.cover_picture AS coverPicture,
+               a.create_time AS time,
+               a.title,
+               a.thumb_count AS nUpvote,
+               a.read_count AS nBrowse,
+               x.nComment,
+               u.nickname
+        from activity a
+        left join sys_user u on a.uid = u.user_id
+        left join (
+        select activity_id, COUNT(*) AS nComment
+        from activity_comments
+        group by activity_id
+        ) x on x.activity_id = a.activity_id
+        <where>
+            a.status = '0'
+        </where>
+    </select>
+
+    <select id="getActivitieById" resultType="cn.edu.hit.violetsns.Entity.pojo.Activity"
+            parameterType="java.lang.Integer">
+        select activity_id,
+               uid,
+               u.nickname,
+               title,
+               content,
+               read_count,
+               thumb_count,
+               create_time
+        from activity a
+        left join sys_user u on u.user_id = a.uid
+        where activity_id = #{activityId}
+    </select>
+</mapper>

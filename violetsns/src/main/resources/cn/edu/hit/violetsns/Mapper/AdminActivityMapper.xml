@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.violetsns.Mapper.AdminActivityMapper">
+    <update id="updateAdminActivityStatus">
+        update sns.activity
+        set status = #{status}
+        where activity_id = #{activityId}
+    </update>
+
+    <select id="getAdminAllActivity" resultType="cn.edu.hit.violetsns.Entity.vo.AdminActivityDetail">
+        select a.activity_id AS activity_id,u.nickname AS nickname,a.title AS title,SUBSTRING(a.content, 1, 30) AS content,u.avatar AS media,a.create_time AS create_time,CASE
+        WHEN a.status = 0 THEN '正常'
+        WHEN a.status = 1 THEN '审核'
+        WHEN a.status = 2 THEN '删除'
+        END AS status
+        from sns.activity a
+        left join sns.sys_user u on u.user_id = a.uid
+        <where>
+            <if test = "nickname != null">
+                u.nickname like concat('%',#{nickname},'%')
+            </if>
+            <if test = "title != null">
+                a.title like concat('%',#{title},'%')
+            </if>
+            <if test = "content != null">
+                a.content like concat('%',#{content},'%')
+            </if>
+            <if test = "status != null">
+                a.status like concat('%',#{status},'%')
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy != null and order != null">
+                ${sortBy} ${order}
+            </when>
+            <otherwise>
+                a.activity_id DESC
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getAdminActivityComment"
+            resultType="cn.edu.hit.violetsns.Entity.vo.AdminActivityCommentDetail">
+        select
+            a.a_comment_id AS a_comment_id,
+            a.pid AS pid,
+            a.activity_id AS activity_id,
+            a.uid AS user_id,
+            a.content AS content,
+            u.nickname AS nickname,
+            a.to_uid AS to_uid,
+            t.nickname AS to_nickname,
+            a.content AS content,
+            CASE
+                WHEN a.status = 0 THEN '正常'
+                WHEN a.status = 1 THEN '审核'
+                WHEN a.status = 2 THEN '删除'
+                END AS status,
+            a.create_time AS create_time
+        from
+            sns.activity_comments a
+        left join sns.sys_user u on u.user_id =a.uid
+        left join sns.sys_user t on t.user_id =a.to_uid
+        <where>
+            <if test = "nickname != null">
+                u.nickname like concat('%',#{nickname},'%')
+            </if>
+            <if test = "content != null">
+                a.content like concat('%',#{content},'%')
+            </if>
+            <if test = "status != null">
+                a.status like concat('%',#{status},'%')
+            </if>
+        </where>
+        ORDER BY
+        <choose>
+            <when test="sortBy != null and order != null">
+                ${sortBy} ${order}
+            </when>
+            <otherwise>
+                a.a_comment_id DESC
+            </otherwise>
+        </choose>
+    </select>
+</mapper>

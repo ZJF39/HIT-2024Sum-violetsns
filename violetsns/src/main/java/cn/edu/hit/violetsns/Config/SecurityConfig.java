@@ -64,7 +64,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/auth/login",
             "/api/auth/captcha",
             "/api/auth/register",
+            "/api/posts",
+            "/index.html",
+            "/index.htm",
             "/doc.html",
+            "/api/notices",
             "/swagger/**",
             "/swagger-ui.html",
             "/webjars/**",
@@ -86,7 +90,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 配置拦截规则
                 .and()
                 .authorizeRequests()
-                .antMatchers(URL_WHITELIST).anonymous()
+                .antMatchers(URL_WHITELIST).permitAll()
                 .anyRequest().authenticated()
                 // 异常处理器
                 .and()
@@ -95,7 +99,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .accessDeniedHandler(jwtAccessDeniedHandler)
                 // 配置自定义的过滤器
                 .and()
-
                 .addFilterBefore(jwtAuthenticationFilter() , UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class);
                 // 验证码过滤器放在UsernamePassword过滤器之前

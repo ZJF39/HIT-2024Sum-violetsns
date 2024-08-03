@@ -9,7 +9,7 @@
 
 
     <select id="getAdminAllComments" resultType="cn.edu.hit.violetsns.Entity.vo.AdminCommentDetail">
-        SELECT c.p_comment_id,c.pid,c.post_id,c.uid,u.nickname,c.content,
+        SELECT c.p_comment_id,c.pid,c.post_id,c.uid,u.nickname,SUBSTRING(c.content, 1, 30) AS content,
         CASE
         WHEN c.status = 0 THEN '正常'
         WHEN c.status = 1 THEN '审核'
